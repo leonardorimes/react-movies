@@ -1,9 +1,12 @@
 import { Container, Profile, Search} from './styles';
 import { Input } from "../Input";
 import { FiSearch } from 'react-icons/fi';
-import { Brand } from "../../components/Brand"
+import { Brand } from "../../components/Brand";
+import {useAuth} from '../../hooks/auth';
+import { ButtonText } from '../ButtonText';
 
 export function Header(){
+    const { signOut } = useAuth();
     return(
     <Container>
 
@@ -15,13 +18,16 @@ export function Header(){
         <Profile to="/profile">
              <div>
                 <span> Leonardo Rimes</span>
-                <strong> Sair </strong>
              </div>
+            
 
+            
              <img 
             src="https://github.com/leonardorimes.png"
              alt="Foto do usuário" />
+
         </Profile>
+                <ButtonText title="Sair" onClick={signOut}>  </ButtonText>
 
     </Container>
     )

@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 import { api } from '../services/api';
 
 export const AuthContext = createContext({});
@@ -12,8 +12,10 @@ function AuthProvider( { children } ) {
             const response = await api.post("/sessions", {email, password});
             const {user, token } = response.data;
 
-            api.defaults.headers.authorization = `Bearer ${token}`;
-            setData({user, token})
+            localStorage.setItem("@rocketmovies:user", JSON.stringify(user));
+            localStorage.setItem("@rocketmovies:token", token);
+            api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+            setData({user, token});
         }catch(error){
             if(error.response){
                 alert(error.response.data.message);
@@ -23,8 +25,31 @@ function AuthProvider( { children } ) {
         }
 
     }
+
+    function signOut(){
+        localStorage.removeItem("@rocketmovies:token");
+        localStorage.removeItem("@rocketmovies:user");
+
+        setData({});
+    }
+
+    useEffect(() => {
+        const token = localStorage.getItem("@rocketmovies:token");
+        const user = localStorage.getItem("@rocketmovies:user");
+
+        if( token && user) {
+            api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+           
+
+            setData({
+                token,
+                user: JSON.parse(user)
+            })
+        }
+    }, [])
+
     return(
-        <AuthContext.Provider value = {{signIn, user: data.user }}>
+        <AuthContext.Provider value = {{signIn,signOut, user: data.user }}>
             {children} //todas as rotas
 
         </AuthContext.Provider>
